@@ -38,9 +38,22 @@ async def query_model(
                 headers=headers,
                 json=payload
             )
-            response.raise_for_status()
+
+            if response.status_code != 200:
+                print(f"[ERROR] Model {model} returned HTTP {response.status_code}")
+                print(f"[ERROR] Response body: {response.text}")
+                return None
 
             data = response.json()
+
+            if 'error' in data:
+                print(f"[ERROR] Model {model} API error: {data['error']}")
+                return None
+
+            if not data.get('choices'):
+                print(f"[ERROR] Model {model} returned no choices: {data}")
+                return None
+
             message = data['choices'][0]['message']
 
             return {
@@ -48,8 +61,11 @@ async def query_model(
                 'reasoning_details': message.get('reasoning_details')
             }
 
+    except httpx.TimeoutException:
+        print(f"[ERROR] Model {model} timed out after {timeout}s")
+        return None
     except Exception as e:
-        print(f"Error querying model {model}: {e}")
+        print(f"[ERROR] Model {model} exception: {type(e).__name__}: {e}")
         return None
 
 
