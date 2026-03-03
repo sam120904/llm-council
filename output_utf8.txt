@@ -1,0 +1,28 @@
+﻿Testing models one at a time with 3s gaps...
+
+
+============================================================
+Model: meta-llama/llama-3.3-70b-instruct:free
+HTTP Status: 429
+ERROR: {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'meta-llama/llama-3.3-70b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}
+
+============================================================
+Model: google/gemma-3-27b-it:free
+HTTP Status: 200
+SUCCESS: Greetings! 
+
+(Or simply: **Hi!**)
+
+
+
+
+
+============================================================
+Model: mistralai/mistral-small-3.1-24b-instruct:free
+HTTP Status: 429
+ERROR: {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'mistralai/mistral-small-3.1-24b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Venice', 'is_byok': False}}
+
+============================================================
+Model: google/gemini-2.0-flash:free
+HTTP Status: 400
+ERROR: {'message': 'google/gemini-2.0-flash:free is not a valid model ID', 'code': 400}

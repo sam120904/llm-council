@@ -1,8 +1,12 @@
 """3-stage LLM Council orchestration."""
 
+import asyncio
 from typing import List, Dict, Any, Tuple
 from .openrouter import query_models_parallel, query_model
 from .config import COUNCIL_MODELS, CHAIRMAN_MODEL
+
+# Delay between stages to let free-tier rate-limit windows reset
+INTER_STAGE_DELAY_SECONDS = 2.0
 
 
 async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
@@ -275,7 +279,7 @@ Title:"""
     messages = [{"role": "user", "content": title_prompt}]
 
     # Use gemini-2.5-flash for title generation (fast and cheap)
-    response = await query_model("google/gemini-2.5-flash", messages, timeout=30.0)
+    response = await query_model(CHAIRMAN_MODEL, messages, timeout=30.0)
 
     if response is None:
         # Fallback to a generic title
@@ -313,11 +317,17 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
             "response": "All models failed to respond. Please try again."
         }, {}
 
+    # Pause to let rate-limit window reset before Stage 2
+    await asyncio.sleep(INTER_STAGE_DELAY_SECONDS)
+
     # Stage 2: Collect rankings
     stage2_results, label_to_model = await stage2_collect_rankings(user_query, stage1_results)
 
     # Calculate aggregate rankings
     aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+
+    # Pause to let rate-limit window reset before Stage 3
+    await asyncio.sleep(INTER_STAGE_DELAY_SECONDS)
 
     # Stage 3: Synthesize final answer
     stage3_result = await stage3_synthesize_final(
